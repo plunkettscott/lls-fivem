@@ -1,0 +1,77 @@
+--- @meta
+
+{{/**
+    This template is used to generate the documentation for a native function.
+
+    The documentation should look like this:
+        --- Get the current game time.
+        ---@return number
+        function GetGameTime()
+        end
+ */}}
+{{- define "native" -}}
+--- {{ .Name }}
+---{{ .Comment }}
+{{- template "docArgs" . -}}
+{{ template "docReturns" . -}}
+{{ print "" }}
+function {{ .Function }}({{ template "functionArgs" . }})
+end
+{{- end -}}
+
+{{/**
+    This template is used to generate the function argument documentation and is used in the "native" template.
+
+    Arguments should look like this:
+        ---@param arg1 string
+        ---@param arg2 number
+        ---@param arg3 boolean
+        ---@param arg4 table
+        ---@param arg5 function
+ */}}
+{{- define "docArgs" -}}
+{{- if .Args -}}
+{{- range .Args }}
+---@param {{ .Name }} {{ .LangType }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+    This template is used to generate the return values and is used in the "native" template.
+
+    Return values should look like this:
+        ---@return string
+        ---@return number
+        ---@return boolean
+ */}}
+{{- define "docReturns" -}}
+{{ if .Returns -}}
+{{- range .Returns }}
+---@return {{ .LangType }}
+{{- end -}}
+{{ end }}
+{{- end -}}
+
+{{/* 
+    This template is used to generate the function arguments and is used in the "native" template.
+
+    Arguments should look like this:
+        arg1, arg2, arg3, arg4, arg5
+*/}}
+{{- define "functionArgs" -}}
+    {{- $lastIndex := .Args.LastIndex -}}
+    {{- range $index, $el := .Args -}}
+        {{- $el.Name -}}
+        {{- if not (eq $index $lastIndex) -}}, {{ end }}
+    {{- end -}}
+{{- end }}
+
+
+{{/**
+    This is the entrypoint for the template and is used to generate the documentation for all natives.
+ */}}
+{{ range .List.Natives -}}
+    {{ template "native" . }}
+
+{{ end }}
